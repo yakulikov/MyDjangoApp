@@ -1,3 +1,5 @@
+from pathlib import Path
+
 SECRET_KEY = 'djan24wrh4w5i6g6,vk5rjrju67duj7l3j$726jl9s=r7q$2hpiska'
 
 DEBUG = False
