@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <style>
+        .btn-custom:hover {
+            font-size: 18px;
+        }
+    </style>
+
+    {% csrf_token %}
+
+    {% for poll in allPolls %}
+        <div class="p-4 border border-3 rounded mb-3 ">
+            <p><b>{{poll.title}}</b></p>
+            <p>{{poll.description}}</p>
+            <button pollId = "{{ poll.id }}" answerId = "0" onClick="Vote(this)" class="btn btn-custom btn-primary">{{poll.firstChoice.value}}: <span id='votes1-{{poll.id}}'>{{poll.firstChoice.votes}}</span></button>
+            <progress value="0" max="{{ poll.winVote }}" id="firstProgress-{{ poll.id }}"></progress>
+            <button pollId = "{{ poll.id }}" answerId = "1" onClick="Vote(this)" class="btn btn-custom btn-primary">{{poll.secondChoice.value}}: <span id='votes2-{{poll.id}}'>{{poll.secondChoice.votes}}</span></button>
+            <progress value="0" max="{{ poll.winVote }}" id="secondProgress-{{ poll.id }}"></progress>
+        </div>
+    {% endfor %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            {% for poll in allPolls %}
+                await updatePollData('{{ poll.id }}')
+            {% endfor %}
+        })
+
+        async function updatePollData(pollId) {
+            let response = await fetch(`http://127.0.0.1:8000/api/poll/get?pollid=${pollId}`)
+            let data = await response.json()
+
+            document.querySelector(`#votes1-${pollId}`).innerHTML = data.firstVote
+            document.querySelector(`#votes2-${pollId}`).innerHTML = data.secondVote
+
+            let firstProgressElement = document.querySelector(`#firstProgress-${pollId}`)
+            firstProgressElement.setAttribute("value", data.firstVote)
+
+            let secondProgressElement = document.querySelector(`#secondProgress-${pollId}`)
+            secondProgressElement.setAttribute("value", data.secondVote)
+
+            if (data.firstVote >= data.winVote) {
+                document.querySelector(`#votes1-${pollId}`).innerHTML = "victory"
+            }
+
+            if (data.secondVote >= data.winVote) {
+                document.querySelector(`#votes2-${pollId}`).innerHTML = "victory"
+            }
+        }
+
+        async function Vote(src) {
+            let pollId = src.getAttribute("pollId")
+            let answerId = src.getAttribute("answerId")
+            let csrf = document.getElementsByName('csrfmiddlewaretoken')[0].getAttribute('value')
+
+            let data = new FormData()
+            data.append("pollId", pollId)
+            data.append("answerId", answerId)
+            data.append("csrfmiddlewaretoken", csrf)
+
+            await fetch('http://127.0.0.1:8000/api/poll/vote/', {
+                method: "POST",
+                body: data
+            });
+
+            await updatePollData(pollId);
+        }
+    </script>
+{% endblock %}
