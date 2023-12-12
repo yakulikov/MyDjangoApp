@@ -28,7 +28,7 @@
         })
 
         async function updatePollData(pollId) {
-            let response = await fetch(`http://127.0.0.1:8000/api/poll/get?pollid=${pollId}`)
+            let response = await fetch(`{% url "api_get_vote_from_poll" %}?pollid=${pollId}`)
             let data = await response.json()
 
             document.querySelector(`#votes1-${pollId}`).innerHTML = data.firstVote
@@ -59,7 +59,7 @@
             data.append("answerId", answerId)
             data.append("csrfmiddlewaretoken", csrf)
 
-            await fetch('http://127.0.0.1:8000/api/poll/vote/', {
+            await fetch('{% url "api_set_vote_for_poll" %}', {
                 method: "POST",
                 body: data
             });
