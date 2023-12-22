@@ -26,7 +26,7 @@ SECRET_KEY = 'djan24wrh4w5i6g6,vk5rjrju67duj7l3j$726jl9s=r7q$2h'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["testoza.ru"]
 
 
 # Application definition
